@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router"
 import { AppLayout } from "@/components/AppLayout"
 import { EventList } from "@/pages/EventList"
 import { EventDetail } from "@/pages/EventDetail"
+import { AdminNew } from "@/pages/AdminNew"
 
 export const router = createBrowserRouter([
   {
@@ -10,7 +11,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <EventList /> },
       { path: "event/:id", element: <EventDetail /> },
-      { path: "admin/new", element: <div>Admin new goes here</div> },
+      { path: "admin/new", element: <AdminNew /> },
     ],
   },
 ])
