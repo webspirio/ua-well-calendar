@@ -3,12 +3,13 @@ import { useNavigate, useParams } from "react-router"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { AttendanceSheet } from "@/components/AttendanceSheet"
 import { EventComments } from "@/components/EventComments"
 import { EventGoingList } from "@/components/EventGoingList"
 import { supabase } from "@/lib/supabase"
 import { currentUserId } from "@/lib/persona"
 import { eventQuery, meQuery, rsvpsQuery } from "@/lib/queries"
-import { formatEventWhen, isPast } from "@/lib/dates"
+import { formatEventWhen, isPast, isToday } from "@/lib/dates"
 import { t } from "@/lib/strings"
 import { announceEvent } from "@/lib/announce"
 import { cn } from "@/lib/utils"
@@ -162,6 +163,9 @@ export function EventDetail() {
       )}
 
       <EventGoingList eventId={id} />
+      {me?.is_admin && (past || isToday(event.starts_at, event.ends_at)) && (
+        <AttendanceSheet eventId={id} />
+      )}
       <EventComments eventId={id} />
 
       {me?.is_admin && (

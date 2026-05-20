@@ -37,6 +37,11 @@ export const t = {
     commentPlaceholder: "Напишіть коментар…",
     commentSubmit: "Надіслати",
     commentSending: "…",
+    attendanceHeading: (yes: number, total: number) =>
+      `Відмітити присутніх — ${yes} / ${total}`,
+    attendedYes: "Прийшов",
+    attendedNo: "Не прийшов",
+    attendedClear: "—",
   },
   admin: {
     title: "Нова подія",
@@ -76,6 +81,8 @@ export const t = {
     rsvpDone: "Ви йдете",
     commentEmpty: "Введіть текст коментаря",
     commentFailed: "Не вдалося надіслати коментар",
+    attendanceSaved: "Збережено",
+    attendanceFailed: "Не вдалося зберегти",
   },
   common: {
     loading: "Завантаження…",
