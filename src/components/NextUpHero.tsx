@@ -1,22 +1,16 @@
+import { useMemo } from "react"
 import { Link } from "react-router"
 import { Badge } from "@/components/ui/badge"
-import { formatEventWhen, formatCountdown, isPast, now } from "@/lib/dates"
+import { formatEventWhen, formatCountdown, now } from "@/lib/dates"
+import { findNextEvent } from "@/lib/eventBadges"
 import { t } from "@/lib/strings"
-import { cn } from "@/lib/utils"
+import { cn, imgSrc } from "@/lib/utils"
 import type { EventRow } from "@/lib/queries"
 
 type Props = { events: EventRow[] }
 
-function imgSrc(rel: string): string {
-  return `${import.meta.env.BASE_URL}${rel}`
-}
-
 export function NextUpHero({ events }: Props) {
-  const today = now().getTime()
-  const next = events
-    .filter((ev) => !isPast(ev.ends_at) && new Date(ev.starts_at).getTime() > today)
-    .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())[0]
-
+  const next = useMemo(() => findNextEvent(events, now().getTime()), [events])
   if (!next) return null
 
   const typeMeta = t.types[next.type]

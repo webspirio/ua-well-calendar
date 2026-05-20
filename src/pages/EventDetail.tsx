@@ -13,11 +13,7 @@ import { eventQuery, meQuery, rsvpsQuery, usersQuery } from "@/lib/queries"
 import { formatEventWhen, isPast, isToday } from "@/lib/dates"
 import { t } from "@/lib/strings"
 import { announceEvent } from "@/lib/announce"
-import { cn } from "@/lib/utils"
-
-function imgSrc(rel: string): string {
-  return `${import.meta.env.BASE_URL}${rel}`
-}
+import { cn, imgSrc } from "@/lib/utils"
 
 export function EventDetail() {
   const { id = "" } = useParams()

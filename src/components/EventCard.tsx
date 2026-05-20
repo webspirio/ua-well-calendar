@@ -6,7 +6,7 @@ import { rsvpsQuery, usersQuery, type EventRow } from "@/lib/queries"
 import { formatEventWhen, isPast, isToday, daysUntil } from "@/lib/dates"
 import { hotness } from "@/lib/eventBadges"
 import { t } from "@/lib/strings"
-import { cn } from "@/lib/utils"
+import { cn, imgSrc } from "@/lib/utils"
 
 type Props = { event: EventRow }
 
@@ -14,10 +14,6 @@ const TYPE_GRADIENT: Record<EventRow["type"], string> = {
   offline: "from-orange-500/30 to-orange-700/50",
   online:  "from-emerald-500/30 to-emerald-700/50",
   trip:    "from-sky-500/30 to-sky-700/50",
-}
-
-function imgSrc(rel: string): string {
-  return `${import.meta.env.BASE_URL}${rel}`
 }
 
 export function EventCard({ event }: Props) {

@@ -18,3 +18,18 @@ export function filterMine(events: EventRow[], rsvps: RsvpRow[], userId: string)
   )
   return events.filter((ev) => mine.has(ev.id))
 }
+
+export function findNextEvent(events: EventRow[], nowMs: number): EventRow | undefined {
+  let best: EventRow | undefined
+  let bestMs = Infinity
+  for (const ev of events) {
+    const startMs = new Date(ev.starts_at).getTime()
+    const endMs = new Date(ev.ends_at).getTime()
+    if (startMs <= nowMs || endMs <= nowMs) continue
+    if (startMs < bestMs) {
+      bestMs = startMs
+      best = ev
+    }
+  }
+  return best
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { hotness, filterMine } from "@/lib/eventBadges"
+import { hotness, filterMine, findNextEvent } from "@/lib/eventBadges"
 import { formatCountdown } from "@/lib/dates"
 import type { EventRow, RsvpRow } from "@/lib/queries"
 
@@ -78,5 +78,44 @@ describe("filterMine(events, rsvps, userId)", () => {
 
   it("returns empty when user has no going rsvps", () => {
     expect(filterMine(events, [], me)).toEqual([])
+  })
+})
+
+describe("findNextEvent(events, nowMs)", () => {
+  const nowMs = new Date("2026-05-10T12:00:00+02:00").getTime()
+  const make = (id: string, starts: string, ends: string): EventRow => ({
+    id,
+    title: id,
+    description: null,
+    location: null,
+    starts_at: starts,
+    ends_at: ends,
+    type: "online",
+    capacity: 10,
+    creator_id: "x",
+    image_url: null,
+    tg_message_id: null,
+    tg_chat_id: null,
+    speaker_user_id: null,
+  })
+
+  it("returns the soonest event that starts after now", () => {
+    const events = [
+      make("past", "2026-05-08T18:00:00+02:00", "2026-05-08T20:00:00+02:00"),
+      make("later", "2026-05-15T18:00:00+02:00", "2026-05-15T20:00:00+02:00"),
+      make("soon", "2026-05-11T18:00:00+02:00", "2026-05-11T20:00:00+02:00"),
+    ]
+    expect(findNextEvent(events, nowMs)?.id).toBe("soon")
+  })
+
+  it("returns undefined when nothing is in the future", () => {
+    expect(findNextEvent([], nowMs)).toBeUndefined()
+  })
+
+  it("ignores events that have already ended", () => {
+    const events = [
+      make("past", "2026-05-08T18:00:00+02:00", "2026-05-08T20:00:00+02:00"),
+    ]
+    expect(findNextEvent(events, nowMs)).toBeUndefined()
   })
 })
