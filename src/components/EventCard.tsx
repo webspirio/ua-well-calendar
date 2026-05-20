@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { AvatarStack } from "./AvatarStack"
 import { rsvpsQuery, usersQuery, type EventRow } from "@/lib/queries"
 import { formatEventWhen, isPast, isToday, daysUntil } from "@/lib/dates"
+import { hotness } from "@/lib/eventBadges"
 import { t } from "@/lib/strings"
 import { cn } from "@/lib/utils"
 
@@ -34,6 +35,7 @@ export function EventCard({ event }: Props) {
 
   const going = goingUsers.length
   const past = isPast(event.ends_at)
+  const heat = hotness(going, event.capacity, past)
   const today = isToday(event.starts_at, event.ends_at)
   const tomorrow = daysUntil(event.starts_at) === 1
   const typeEmoji = t.types[event.type].emoji
@@ -104,6 +106,19 @@ export function EventCard({ event }: Props) {
         {event.location && (
           <div className="text-sm text-muted-foreground truncate">
             {event.location}
+          </div>
+        )}
+        {heat && (
+          <div className="pt-1">
+            <Badge
+              className={
+                heat === "full"
+                  ? "bg-muted text-muted-foreground hover:bg-muted"
+                  : "bg-rose-500 hover:bg-rose-500 text-white"
+              }
+            >
+              {heat === "full" ? t.list.full : t.list.almostFull}
+            </Badge>
           </div>
         )}
         <div className="flex items-center justify-between gap-2 pt-1 mt-auto">

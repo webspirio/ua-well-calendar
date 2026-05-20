@@ -4,6 +4,7 @@ import { Link } from "react-router"
 import { buttonVariants } from "@/components/ui/button"
 import { EventCard } from "@/components/EventCard"
 import { EventFilters, type TimeFilter, type TypeFilter } from "@/components/EventFilters"
+import { NextUpHero } from "@/components/NextUpHero"
 import { currentUserId } from "@/lib/persona"
 import { eventsQuery, meQuery } from "@/lib/queries"
 import { isPast } from "@/lib/dates"
@@ -40,6 +41,7 @@ export function EventList() {
           </Link>
         )}
       </div>
+      {time !== "past" && <NextUpHero events={events} />}
       <EventFilters
         time={time}
         type={type}

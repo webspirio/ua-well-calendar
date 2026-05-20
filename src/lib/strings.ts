@@ -14,6 +14,9 @@ export const t = {
     tomorrowLabel: "Завтра",
     goingCount: (going: number, capacity: number) =>
       `${going} / ${capacity} йдуть`,
+    almostFull: "🔥 Майже всі місця зайнято",
+    full: "Місць не залишилось",
+    nextUpHeading: "Найближча подія",
   },
   filters: {
     timeAll: "Усі",
@@ -42,6 +45,8 @@ export const t = {
     attendedYes: "Прийшов",
     attendedNo: "Не прийшов",
     attendedClear: "—",
+    speaker: (name: string) => `Спікер: ${name}`,
+    speakerBadge: "Спікер",
   },
   admin: {
     title: "Нова подія",

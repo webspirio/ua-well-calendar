@@ -1,13 +1,14 @@
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "react-router"
+import { Badge } from "@/components/ui/badge"
 import { rsvpsQuery, usersQuery } from "@/lib/queries"
 import { AvatarStack } from "./AvatarStack"
 import { t } from "@/lib/strings"
 
-type Props = { eventId: string }
+type Props = { eventId: string; speakerUserId?: string | null }
 
-export function EventGoingList({ eventId }: Props) {
+export function EventGoingList({ eventId, speakerUserId }: Props) {
   const { data: rsvps } = useQuery(rsvpsQuery(eventId))
   const { data: users } = useQuery(usersQuery())
 
@@ -40,6 +41,11 @@ export function EventGoingList({ eventId }: Props) {
               >
                 <AvatarStack users={[u]} max={1} size="sm" />
                 <span className="truncate">{u.first_name ?? "—"}</span>
+                {speakerUserId && u.id === speakerUserId && (
+                  <Badge variant="secondary" className="ml-auto shrink-0">
+                    {t.detail.speakerBadge}
+                  </Badge>
+                )}
               </Link>
             </li>
           ))}

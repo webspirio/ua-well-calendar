@@ -8,7 +8,7 @@ import { EventComments } from "@/components/EventComments"
 import { EventGoingList } from "@/components/EventGoingList"
 import { supabase } from "@/lib/supabase"
 import { currentUserId } from "@/lib/persona"
-import { eventQuery, meQuery, rsvpsQuery } from "@/lib/queries"
+import { eventQuery, meQuery, rsvpsQuery, usersQuery } from "@/lib/queries"
 import { formatEventWhen, isPast, isToday } from "@/lib/dates"
 import { t } from "@/lib/strings"
 import { announceEvent } from "@/lib/announce"
@@ -26,6 +26,10 @@ export function EventDetail() {
   const { data: event, isLoading } = useQuery(eventQuery(id))
   const { data: rsvps } = useQuery(rsvpsQuery(id))
   const { data: me } = useQuery(meQuery(userId))
+  const { data: users } = useQuery(usersQuery())
+  const speaker = event?.speaker_user_id
+    ? users?.find((u) => u.id === event.speaker_user_id)
+    : null
 
   const going = rsvps?.filter((r) => r.status === "going").length ?? 0
   const myRow = rsvps?.find((r) => r.user_id === userId)
@@ -127,6 +131,11 @@ export function EventDetail() {
         {event.location && (
           <p className="text-sm text-muted-foreground">{event.location}</p>
         )}
+        {speaker?.first_name && (
+          <p className="text-sm font-medium text-foreground/90">
+            {t.detail.speaker(speaker.first_name)}
+          </p>
+        )}
       </header>
 
       {event.description && (
@@ -162,7 +171,7 @@ export function EventDetail() {
         </div>
       )}
 
-      <EventGoingList eventId={id} />
+      <EventGoingList eventId={id} speakerUserId={event.speaker_user_id} />
       {me?.is_admin && (past || isToday(event.starts_at, event.ends_at)) && (
         <AttendanceSheet eventId={id} />
       )}

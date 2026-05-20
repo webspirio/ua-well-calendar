@@ -1,4 +1,10 @@
-import { format, isSameDay, isSameMonth, differenceInCalendarDays } from "date-fns"
+import {
+  format,
+  isSameDay,
+  isSameMonth,
+  differenceInCalendarDays,
+  differenceInMinutes,
+} from "date-fns"
 import { uk } from "date-fns/locale"
 
 // Mock "today" so the demo always has events both in the past and in the future.
@@ -57,4 +63,26 @@ export function formatCommentTime(date: string): string {
   const today = now()
   if (isSameDay(d, today)) return format(d, "HH:mm", { locale: uk })
   return format(d, FMT_DAY_MONTH, { locale: uk })
+}
+
+export function formatCountdown(startsAt: string): string {
+  const s = new Date(startsAt)
+  const today = now()
+  const mins = differenceInMinutes(s, today)
+  if (mins <= 0) return "вже починається"
+  if (mins < 60) return `через ${mins} хв`
+  if (isSameDay(s, today)) return `сьогодні о ${format(s, "HH:mm")}`
+  const days = differenceInCalendarDays(s, today)
+  if (days === 1) return `завтра о ${format(s, "HH:mm")}`
+  if (days < 7) return `через ${days} ${plural(days, "день", "дні", "днів")}`
+  const weeks = Math.floor(days / 7)
+  return `через ${weeks} тиж`
+}
+
+function plural(n: number, one: string, few: string, many: string): string {
+  const mod10 = n % 10
+  const mod100 = n % 100
+  if (mod10 === 1 && mod100 !== 11) return one
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few
+  return many
 }
