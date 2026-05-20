@@ -15,6 +15,7 @@ export type EventRow = {
   image_url: string | null
   tg_message_id: number | null
   tg_chat_id: number | null
+  speaker_user_id: string | null
 }
 
 export type UserRow = {
@@ -30,6 +31,7 @@ export type RsvpRow = {
   event_id: string
   user_id: string
   status: "going" | "cancelled"
+  attended: boolean | null
 }
 
 export type CommentRow = {
@@ -41,7 +43,7 @@ export type CommentRow = {
 }
 
 const EVENT_COLS =
-  "id, title, description, location, starts_at, ends_at, type, capacity, creator_id, image_url, tg_message_id, tg_chat_id"
+  "id, title, description, location, starts_at, ends_at, type, capacity, creator_id, image_url, tg_message_id, tg_chat_id, speaker_user_id"
 
 const USER_COLS = "id, tg_id, username, first_name, is_admin, created_at"
 
@@ -137,7 +139,7 @@ export function rsvpsQuery(eventId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rsvps")
-        .select("event_id, user_id, status")
+        .select("event_id, user_id, status, attended")
         .eq("event_id", eventId)
       if (error) throw error
       return data as RsvpRow[]
@@ -151,7 +153,7 @@ export function allRsvpsQuery() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rsvps")
-        .select("event_id, user_id, status")
+        .select("event_id, user_id, status, attended")
       if (error) throw error
       return data as RsvpRow[]
     },

@@ -71,7 +71,7 @@ insert into events (id, creator_id, title, description, location, starts_at, end
 );
 
 -- 4. 🟠 07.05 (чт) 17:00 Штутгарт
-insert into events (id, creator_id, title, description, location, starts_at, ends_at, type, capacity, image_url) values (
+insert into events (id, creator_id, title, description, location, starts_at, ends_at, type, capacity, image_url, speaker_user_id) values (
   '11111111-1111-1111-1111-000000000004',
   '00000000-0000-0000-0000-000000000001',
   'Workshop — «Стратегії в бізнесі»',
@@ -79,7 +79,8 @@ insert into events (id, creator_id, title, description, location, starts_at, end
   'Штутгарт',
   '2026-05-07 17:00:00+02', '2026-05-07 20:00:00+02',
   'offline', 20,
-  'events/07.05.jpg'
+  'events/07.05.jpg',
+  '00000000-0000-0000-0000-000000000019'
 );
 
 -- 5. 🟠 09.05 (сб) 13:00 м. Ульм
@@ -95,7 +96,7 @@ insert into events (id, creator_id, title, description, location, starts_at, end
 );
 
 -- 6. 🟢 11.05 (пн) 18:00 Online — Аналіз ніші (TOMORROW relative to mock today)
-insert into events (id, creator_id, title, description, location, starts_at, ends_at, type, capacity, image_url) values (
+insert into events (id, creator_id, title, description, location, starts_at, ends_at, type, capacity, image_url, speaker_user_id) values (
   '11111111-1111-1111-1111-000000000006',
   '00000000-0000-0000-0000-000000000001',
   'Аналіз ніші та конкурентів',
@@ -103,7 +104,8 @@ insert into events (id, creator_id, title, description, location, starts_at, end
   'Online',
   '2026-05-11 18:00:00+02', '2026-05-11 20:00:00+02',
   'online', 100,
-  'events/11.05.jpg'
+  'events/11.05.jpg',
+  '00000000-0000-0000-0000-00000000001a'
 );
 
 -- 7. 🟠 13.05 (ср) 17:00 Нюрнберг
@@ -177,7 +179,7 @@ insert into events (id, creator_id, title, description, location, starts_at, end
 --   6 Аналіз ніші (cap 100):        16 going (TOMORROW — buzz!)
 --   7 Нюрнберг (cap 12):             6 going (future)
 --   8 Фрідріхсхафен (cap 12):        8 going (future)
---   9 Велотур (cap 15):             11 going (future)
+--   9 Велотур (cap 15):             12 going (future) — crosses 75% threshold
 --  10 Мюнхен (cap 12):               5 going (future)
 --  11 AI кейси (cap 100):           13 going (future)
 -- ============================================================================
@@ -290,6 +292,7 @@ insert into rsvps (event_id, user_id, status) values
   ('11111111-1111-1111-1111-000000000009', '00000000-0000-0000-0000-000000000018', 'going'),
   ('11111111-1111-1111-1111-000000000009', '00000000-0000-0000-0000-00000000001c', 'going'),
   ('11111111-1111-1111-1111-000000000009', '00000000-0000-0000-0000-00000000001e', 'going'),
+  ('11111111-1111-1111-1111-000000000009', '00000000-0000-0000-0000-00000000001b', 'going'),
 
   -- 10. Мюнхен (5/12) — future
   ('11111111-1111-1111-1111-00000000000a', '00000000-0000-0000-0000-000000000012', 'going'),
