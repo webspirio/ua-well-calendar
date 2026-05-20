@@ -3,7 +3,7 @@ import { t } from "@/lib/strings"
 import { cn } from "@/lib/utils"
 import type { EventType } from "@/lib/queries"
 
-export type TimeFilter = "all" | "upcoming" | "past"
+export type TimeFilter = "all" | "upcoming" | "past" | "mine"
 export type TypeFilter = "all" | EventType
 
 type Props = {
@@ -17,6 +17,7 @@ export function EventFilters({ time, type, onTimeChange, onTypeChange }: Props) 
   const timeOptions: { value: TimeFilter; label: string }[] = [
     { value: "upcoming", label: t.filters.timeUpcoming },
     { value: "past",     label: t.filters.timePast },
+    { value: "mine",     label: t.filters.timeMine },
     { value: "all",      label: t.filters.timeAll },
   ]
   const typeOptions: { value: TypeFilter; label: string }[] = [

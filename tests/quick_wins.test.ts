@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { hotness } from "@/lib/eventBadges"
+import { hotness, filterMine } from "@/lib/eventBadges"
 import { formatCountdown } from "@/lib/dates"
+import type { EventRow, RsvpRow } from "@/lib/queries"
 
 describe("hotness(going, capacity, past)", () => {
   it("returns null when past", () => {
@@ -43,5 +44,39 @@ describe("formatCountdown(startsAt)", () => {
   it("returns 'через N тиж' for ≥ 7 days", () => {
     expect(formatCountdown("2026-05-17T10:00:00+02:00")).toBe("через 1 тиж")
     expect(formatCountdown("2026-05-24T10:00:00+02:00")).toBe("через 2 тиж")
+  })
+})
+
+describe("filterMine(events, rsvps, userId)", () => {
+  const me = "user-me"
+  const other = "user-other"
+  const ev = (id: string): EventRow => ({
+    id,
+    title: id,
+    description: null,
+    location: null,
+    starts_at: "2026-05-11T18:00:00+02:00",
+    ends_at: "2026-05-11T20:00:00+02:00",
+    type: "online",
+    capacity: 10,
+    creator_id: "x",
+    image_url: null,
+    tg_message_id: null,
+    tg_chat_id: null,
+    speaker_user_id: null,
+  })
+  const events: EventRow[] = [ev("a"), ev("b"), ev("c")]
+
+  it("keeps only events where the user is going", () => {
+    const rsvps: RsvpRow[] = [
+      { event_id: "a", user_id: me, status: "going", attended: null },
+      { event_id: "b", user_id: me, status: "cancelled", attended: null },
+      { event_id: "c", user_id: other, status: "going", attended: null },
+    ]
+    expect(filterMine(events, rsvps, me).map((e) => e.id)).toEqual(["a"])
+  })
+
+  it("returns empty when user has no going rsvps", () => {
+    expect(filterMine(events, [], me)).toEqual([])
   })
 })

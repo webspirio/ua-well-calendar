@@ -17,11 +17,13 @@ export const t = {
     almostFull: "🔥 Майже всі місця зайнято",
     full: "Місць не залишилось",
     nextUpHeading: "Найближча подія",
+    emptyMine: "Ви ще нікуди не зареєструвалися.",
   },
   filters: {
     timeAll: "Усі",
     timeUpcoming: "Майбутні",
     timePast: "Минулі",
+    timeMine: "Мої",
     typeAll: "Усі типи",
   },
   detail: {
