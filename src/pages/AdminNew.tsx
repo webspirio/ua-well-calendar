@@ -12,19 +12,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/lib/supabase"
 import { currentUserId } from "@/lib/persona"
 import { meQuery } from "@/lib/queries"
+import { announceEvent } from "@/lib/announce"
+import { t } from "@/lib/strings"
 
 const schema = z
   .object({
-    title: z.string().min(3).max(80),
+    title: z.string().min(3, t.admin.errors.titleTooShort).max(80),
     description: z.string().max(2000).optional(),
     location: z.string().max(200).optional(),
-    starts_at: z.string().min(1, "required"),
-    ends_at: z.string().min(1, "required"),
+    starts_at: z.string().min(1),
+    ends_at: z.string().min(1),
     capacity: z.coerce.number().int().min(1).max(500),
-    type: z.enum(["meetup", "workshop"]),
+    type: z.enum(["offline", "online", "trip"]),
   })
   .refine((d) => new Date(d.ends_at) > new Date(d.starts_at), {
-    message: "End must be after start",
+    message: t.admin.errors.endBeforeStart,
     path: ["ends_at"],
   })
 
@@ -38,7 +40,15 @@ export function AdminNew() {
 
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: "", description: "", location: "", starts_at: "", ends_at: "", capacity: 10, type: "meetup" },
+    defaultValues: {
+      title: "",
+      description: "",
+      location: "",
+      starts_at: "",
+      ends_at: "",
+      capacity: 10,
+      type: "offline",
+    },
   })
 
   const create = useMutation({
@@ -60,63 +70,74 @@ export function AdminNew() {
       if (error) throw error
       return data
     },
-    onSuccess: (row) => {
-      toast.success("Event created")
+    onSuccess: async (row) => {
+      toast.success(t.toast.eventCreated)
+      const announce = await announceEvent(row.id, userId)
+      if (!announce.ok) {
+        toast.error(`${t.toast.announceFailed}: ${announce.error}`)
+      } else {
+        toast.success(t.toast.announceSent)
+      }
       navigate(`/event/${row.id}`)
     },
     onError: (e: Error) => toast.error(e.message),
   })
 
-  if (isLoading) return <p className="text-muted-foreground">Loading…</p>
+  if (isLoading) return <p className="text-muted-foreground">{t.common.loading}</p>
   if (!me?.is_admin) return <Navigate to="/" replace />
 
   return (
     <form onSubmit={form.handleSubmit((v) => create.mutate(v))} className="space-y-4 max-w-lg">
-      <h2 className="text-xl font-semibold">New event</h2>
+      <h2 className="text-xl font-semibold">{t.admin.title}</h2>
 
-      <Field label="Title" error={form.formState.errors.title?.message}>
-        <Input {...form.register("title")} />
+      <Field label={t.admin.fields.title} error={form.formState.errors.title?.message}>
+        <Input placeholder={t.admin.placeholders.title} {...form.register("title")} />
       </Field>
 
-      <Field label="Description" error={form.formState.errors.description?.message}>
-        <Textarea rows={3} {...form.register("description")} />
+      <Field label={t.admin.fields.description} error={form.formState.errors.description?.message}>
+        <Textarea
+          rows={4}
+          placeholder={t.admin.placeholders.description}
+          {...form.register("description")}
+        />
       </Field>
 
-      <Field label="Location" error={form.formState.errors.location?.message}>
-        <Input {...form.register("location")} />
+      <Field label={t.admin.fields.location} error={form.formState.errors.location?.message}>
+        <Input placeholder={t.admin.placeholders.location} {...form.register("location")} />
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Starts" error={form.formState.errors.starts_at?.message}>
+        <Field label={t.admin.fields.startsAt} error={form.formState.errors.starts_at?.message}>
           <Input type="datetime-local" {...form.register("starts_at")} />
         </Field>
-        <Field label="Ends" error={form.formState.errors.ends_at?.message}>
+        <Field label={t.admin.fields.endsAt} error={form.formState.errors.ends_at?.message}>
           <Input type="datetime-local" {...form.register("ends_at")} />
         </Field>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Capacity" error={form.formState.errors.capacity?.message}>
+        <Field label={t.admin.fields.capacity} error={form.formState.errors.capacity?.message}>
           <Input type="number" min={1} max={500} {...form.register("capacity")} />
         </Field>
-        <Field label="Type" error={form.formState.errors.type?.message}>
+        <Field label={t.admin.fields.type} error={form.formState.errors.type?.message}>
           <Select
-            defaultValue="meetup"
-            onValueChange={(v) => form.setValue("type", v as "meetup" | "workshop")}
+            defaultValue="offline"
+            onValueChange={(v) => form.setValue("type", v as FormValues["type"])}
           >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="meetup">meetup</SelectItem>
-              <SelectItem value="workshop">workshop</SelectItem>
+              <SelectItem value="offline">{t.admin.types.offline}</SelectItem>
+              <SelectItem value="online">{t.admin.types.online}</SelectItem>
+              <SelectItem value="trip">{t.admin.types.trip}</SelectItem>
             </SelectContent>
           </Select>
         </Field>
       </div>
 
       <Button type="submit" disabled={create.isPending}>
-        {create.isPending ? "Creating…" : "Create event"}
+        {create.isPending ? t.admin.submitting : t.admin.submit}
       </Button>
     </form>
   )

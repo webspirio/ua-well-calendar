@@ -3,7 +3,10 @@ import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
 
-export default defineConfig({
+// Production (GH Pages) serves at https://<user>.github.io/calendar-app-tg/
+// so build output is base-pathed. Dev server runs at the root for sanity.
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/calendar-app-tg/" : "/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -15,4 +18,4 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
   },
-})
+}))

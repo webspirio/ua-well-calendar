@@ -7,9 +7,9 @@ export type Persona = {
 }
 
 export const PERSONAS: readonly Persona[] = [
-  { id: "00000000-0000-0000-0000-000000000001", label: "Alex (admin)",   isAdmin: true  },
-  { id: "00000000-0000-0000-0000-000000000002", label: "Maria",          isAdmin: false },
-  { id: "00000000-0000-0000-0000-000000000003", label: "Pavlo",          isAdmin: false },
+  { id: "00000000-0000-0000-0000-000000000001", label: "Олександр (адмін)", isAdmin: true },
+  { id: "00000000-0000-0000-0000-000000000002", label: "Марія",              isAdmin: false },
+  { id: "00000000-0000-0000-0000-000000000003", label: "Павло",              isAdmin: false },
 ] as const
 
 export function currentUserId(): string {
