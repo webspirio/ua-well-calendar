@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { AttendanceSheet } from "@/components/AttendanceSheet"
 import { EventComments } from "@/components/EventComments"
 import { EventGoingList } from "@/components/EventGoingList"
+import { ShareButton } from "@/components/ShareButton"
 import { supabase } from "@/lib/supabase"
 import { currentUserId } from "@/lib/persona"
 import { eventQuery, meQuery, rsvpsQuery, usersQuery } from "@/lib/queries"
@@ -150,26 +151,26 @@ export function EventDetail() {
         </Badge>
       </div>
 
-      {!past && (
-        <div className="flex flex-wrap gap-2 pt-2">
-          {!isGoing ? (
-            <Button
-              onClick={() => goingMutation.mutate()}
-              disabled={goingMutation.isPending}
-            >
-              {goingMutation.isPending ? t.common.loading : t.detail.going}
-            </Button>
-          ) : (
-            <Button
-              variant="secondary"
-              onClick={() => cancelMutation.mutate()}
-              disabled={cancelMutation.isPending}
-            >
-              {cancelMutation.isPending ? t.common.loading : t.detail.cancelRsvp}
-            </Button>
-          )}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-2 pt-2">
+        {!past && !isGoing && (
+          <Button
+            onClick={() => goingMutation.mutate()}
+            disabled={goingMutation.isPending}
+          >
+            {goingMutation.isPending ? t.common.loading : t.detail.going}
+          </Button>
+        )}
+        {!past && isGoing && (
+          <Button
+            variant="secondary"
+            onClick={() => cancelMutation.mutate()}
+            disabled={cancelMutation.isPending}
+          >
+            {cancelMutation.isPending ? t.common.loading : t.detail.cancelRsvp}
+          </Button>
+        )}
+        <ShareButton eventId={id} />
+      </div>
 
       <EventGoingList eventId={id} speakerUserId={event.speaker_user_id} />
       {me?.is_admin && (past || isToday(event.starts_at, event.ends_at)) && (

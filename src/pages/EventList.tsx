@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "react-router"
 import { buttonVariants } from "@/components/ui/button"
 import { EventCard } from "@/components/EventCard"
+import { EventCardSkeleton } from "@/components/EventCardSkeleton"
 import { EventFilters, type TimeFilter, type TypeFilter } from "@/components/EventFilters"
 import { NextUpHero } from "@/components/NextUpHero"
 import { currentUserId } from "@/lib/persona"
@@ -34,7 +35,16 @@ export function EventList() {
     })
   }, [events, time, type, allRsvps, me])
 
-  if (isLoading) return <p className="text-muted-foreground">{t.list.loading}</p>
+  if (isLoading)
+    return (
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <li key={i} className="h-full">
+            <EventCardSkeleton />
+          </li>
+        ))}
+      </ul>
+    )
   if (error) return <p className="text-muted-foreground">{t.common.error}</p>
   if (!events?.length) return <p className="text-muted-foreground">{t.list.empty}</p>
 

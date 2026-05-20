@@ -49,6 +49,7 @@ export const t = {
     attendedClear: "—",
     speaker: (name: string) => `Спікер: ${name}`,
     speakerBadge: "Спікер",
+    share: "Поділитись",
   },
   admin: {
     title: "Нова подія",
@@ -90,6 +91,8 @@ export const t = {
     commentFailed: "Не вдалося надіслати коментар",
     attendanceSaved: "Збережено",
     attendanceFailed: "Не вдалося зберегти",
+    linkCopied: "Посилання скопійовано",
+    linkCopyFailed: "Не вдалося скопіювати",
   },
   common: {
     loading: "Завантаження…",

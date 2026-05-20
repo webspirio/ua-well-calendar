@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { AvatarStack } from "./AvatarStack"
+import { CommentSkeleton } from "./CommentSkeleton"
 import { supabase } from "@/lib/supabase"
 import { commentsQuery, usersQuery } from "@/lib/queries"
 import { formatCommentTime } from "@/lib/dates"
@@ -55,7 +56,13 @@ export function EventComments({ eventId }: Props) {
         {t.detail.commentsHeading} · {comments?.length ?? 0}
       </h2>
 
-      {comments && comments.length > 0 ? (
+      {comments === undefined ? (
+        <ul className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <CommentSkeleton key={i} />
+          ))}
+        </ul>
+      ) : comments.length > 0 ? (
         <ul className="space-y-3">
           {comments.map((c) => {
             const author = userMap.get(c.user_id)
