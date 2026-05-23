@@ -5,8 +5,10 @@ import { EventDetail } from "@/pages/EventDetail"
 import { AdminNew } from "@/pages/AdminNew"
 import { AdminMembers } from "@/pages/AdminMembers"
 import { Profile } from "@/pages/Profile"
+import { Offer } from "@/pages/Offer"
 
 export const router = createHashRouter([
+  { path: "/offer", element: <Offer /> },
   {
     path: "/",
     element: <AppLayout />,
