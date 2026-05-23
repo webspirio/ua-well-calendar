@@ -4,8 +4,13 @@ import {
   isSameMonth,
   differenceInCalendarDays,
   differenceInMinutes,
+  startOfDay,
+  endOfDay,
+  startOfMonth,
+  endOfMonth,
 } from "date-fns"
 import { uk } from "date-fns/locale"
+import type { EventRow } from "./queries"
 
 // Mock "today" so the demo always has events both in the past and in the future.
 // 10 May 2026 sits between the 09.05 game (past) and the 11.05 lecture (future).
@@ -85,4 +90,36 @@ function plural(n: number, one: string, few: string, many: string): string {
   if (mod10 === 1 && mod100 !== 11) return one
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few
   return many
+}
+
+function rangesOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): boolean {
+  return aStart.getTime() <= bEnd.getTime() && aEnd.getTime() >= bStart.getTime()
+}
+
+export function eventsOnDay(events: EventRow[], day: Date): EventRow[] {
+  const dayStart = startOfDay(day)
+  const dayEnd = endOfDay(day)
+  return events.filter((ev) => {
+    const evStart = new Date(ev.starts_at)
+    const evEnd = new Date(ev.ends_at)
+    return evStart.getTime() <= dayEnd.getTime() && evEnd.getTime() > dayStart.getTime()
+  })
+}
+
+export function eventsInMonth(events: EventRow[], monthDate: Date): EventRow[] {
+  const monthStart = startOfMonth(monthDate)
+  const monthEnd = endOfMonth(monthDate)
+  return events
+    .filter((ev) =>
+      rangesOverlap(new Date(ev.starts_at), new Date(ev.ends_at), monthStart, monthEnd),
+    )
+    .sort(
+      (a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime(),
+    )
+}
+
+export function eventTypesOnDay(events: EventRow[], day: Date): Set<EventRow["type"]> {
+  const set = new Set<EventRow["type"]>()
+  for (const ev of eventsOnDay(events, day)) set.add(ev.type)
+  return set
 }
