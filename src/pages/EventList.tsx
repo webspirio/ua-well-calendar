@@ -1,50 +1,80 @@
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "react-router"
+import { format } from "date-fns"
 import { buttonVariants } from "@/components/ui/button"
 import { EventCard } from "@/components/EventCard"
 import { EventCardSkeleton } from "@/components/EventCardSkeleton"
-import { EventFilters, type TimeFilter, type TypeFilter } from "@/components/EventFilters"
+import { EventCalendar } from "@/components/EventCalendar"
+import { DayEventsDialog } from "@/components/DayEventsDialog"
+import { MineToggle } from "@/components/MineToggle"
+import { EventFilters, type TypeFilter } from "@/components/EventFilters"
 import { NextUpHero } from "@/components/NextUpHero"
 import { currentUserId } from "@/lib/persona"
-import { allRsvpsQuery, eventsQuery, meQuery } from "@/lib/queries"
+import { allRsvpsQuery, eventsQuery, meQuery, type EventType } from "@/lib/queries"
 import { filterMine } from "@/lib/eventBadges"
-import { isPast } from "@/lib/dates"
+import {
+  eventsInMonth,
+  eventsOnDay,
+  eventTypesOnDay,
+  now,
+} from "@/lib/dates"
 import { t } from "@/lib/strings"
 
 export function EventList() {
   const { data: me } = useQuery(meQuery(currentUserId()))
   const { data: events, isLoading, error } = useQuery(eventsQuery())
   const { data: allRsvps } = useQuery(allRsvpsQuery())
-  const [time, setTime] = useState<TimeFilter>("upcoming")
+
+  const [month, setMonth] = useState<Date>(now())
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+  const [mineOnly, setMineOnly] = useState(false)
   const [type, setType] = useState<TypeFilter>("all")
 
-  const filtered = useMemo(() => {
+  const visibleEvents = useMemo(() => {
     if (!events) return []
     let base = events
-    if (time === "mine" && me) {
-      base = filterMine(events, allRsvps ?? [], me.id)
-    }
-    return base.filter((ev) => {
-      if (type !== "all" && ev.type !== type) return false
-      if (time === "mine") return true
-      const past = isPast(ev.ends_at)
-      if (time === "upcoming" && past) return false
-      if (time === "past" && !past) return false
-      return true
-    })
-  }, [events, time, type, allRsvps, me])
+    if (mineOnly && me) base = filterMine(events, allRsvps ?? [], me.id)
+    if (type !== "all") base = base.filter((ev) => ev.type === type)
+    return base
+  }, [events, mineOnly, type, allRsvps, me])
 
-  if (isLoading)
+  const monthEvents = useMemo(
+    () => eventsInMonth(visibleEvents, month),
+    [visibleEvents, month],
+  )
+
+  const dayEvents = useMemo(
+    () => (selectedDay ? eventsOnDay(visibleEvents, selectedDay) : []),
+    [visibleEvents, selectedDay],
+  )
+
+  const daysWithEvents = useMemo(() => {
+    const map = new Map<string, Set<EventType>>()
+    for (const ev of monthEvents) {
+      const start = new Date(ev.starts_at)
+      const end = new Date(ev.ends_at)
+      const cursor = new Date(start.getFullYear(), start.getMonth(), start.getDate())
+      const stopMs = end.getTime()
+      while (cursor.getTime() <= stopMs) {
+        const types = eventTypesOnDay(visibleEvents, cursor)
+        if (types.size > 0) {
+          map.set(format(cursor, "yyyy-MM-dd"), types)
+        }
+        cursor.setDate(cursor.getDate() + 1)
+      }
+    }
+    return map
+  }, [monthEvents, visibleEvents])
+
+  if (isLoading) {
     return (
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <li key={i} className="h-full">
-            <EventCardSkeleton />
-          </li>
-        ))}
-      </ul>
+      <div className="space-y-4">
+        <div className="h-64 rounded-xl bg-muted animate-pulse" />
+        <EventCardSkeleton />
+      </div>
     )
+  }
   if (error) return <p className="text-muted-foreground">{t.common.error}</p>
   if (!events?.length) return <p className="text-muted-foreground">{t.list.empty}</p>
 
@@ -58,20 +88,28 @@ export function EventList() {
           </Link>
         )}
       </div>
-      {time !== "past" && time !== "mine" && <NextUpHero events={events} />}
-      <EventFilters
-        time={time}
-        type={type}
-        onTimeChange={setTime}
-        onTypeChange={setType}
+
+      {!mineOnly && <NextUpHero events={events} />}
+
+      <MineToggle value={mineOnly} onChange={setMineOnly} />
+
+      <EventCalendar
+        month={month}
+        selectedDay={selectedDay}
+        daysWithEvents={daysWithEvents}
+        onMonthChange={setMonth}
+        onDayPick={setSelectedDay}
       />
-      {filtered.length === 0 ? (
+
+      <EventFilters type={type} onTypeChange={setType} />
+
+      {monthEvents.length === 0 ? (
         <p className="text-muted-foreground py-8 text-center">
-          {time === "mine" ? t.list.emptyMine : t.list.emptyFiltered}
+          {mineOnly ? t.list.emptyMine : t.calendar.monthEmpty}
         </p>
       ) : (
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filtered.map((ev) => (
+          {monthEvents.map((ev) => (
             <li key={ev.id} className="h-full">
               <Link to={`/event/${ev.id}`} className="block h-full">
                 <EventCard event={ev} />
@@ -80,6 +118,14 @@ export function EventList() {
           ))}
         </ul>
       )}
+
+      <DayEventsDialog
+        day={selectedDay}
+        events={dayEvents}
+        onOpenChange={(open) => {
+          if (!open) setSelectedDay(null)
+        }}
+      />
     </div>
   )
 }
