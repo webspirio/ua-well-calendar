@@ -137,6 +137,16 @@ export const t = {
     promoting: "Збереження…",
     cannotDemoteSelf: "Ви не можете зняти права з себе",
   },
+  calendar: {
+    mineToggle: "★ Тільки мої",
+    modalEmpty: "На цей день подій немає.",
+    monthEmpty: "У цьому місяці подій немає.",
+    legend: {
+      offline: "Офлайн",
+      online: "Онлайн",
+      trip: "Подорож",
+    },
+  },
   types: {
     offline: { label: "Офлайн", emoji: "🟠" },
     online: { label: "Онлайн", emoji: "🟢" },
